@@ -1,0 +1,14 @@
+(() => {'use strict';
+  const $=(s,c=document)=>c.querySelector(s), $$=(s,c=document)=>[...c.querySelectorAll(s)];
+  const header=$('#header'), toggle=$('.menu-toggle'), nav=$('#nav');
+  window.addEventListener('load',()=>document.body.classList.add('loaded'),{once:true}); setTimeout(()=>document.body.classList.add('loaded'),1800);
+  const closeMenu=()=>{if(!toggle||!nav)return;toggle.setAttribute('aria-expanded','false');nav.classList.remove('open');document.body.classList.remove('menu-open')};
+  toggle?.addEventListener('click',()=>{const open=toggle.getAttribute('aria-expanded')!=='true';toggle.setAttribute('aria-expanded',String(open));nav.classList.toggle('open',open);document.body.classList.toggle('menu-open',open)});
+  nav?.addEventListener('click',e=>{if(e.target.closest('a'))closeMenu()}); document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMenu()});
+  const top=$('.to-top'); const onScroll=()=>{header?.classList.toggle('scrolled',scrollY>30);top?.classList.toggle('visible',scrollY>600)};window.addEventListener('scroll',onScroll,{passive:true});onScroll();top?.addEventListener('click',()=>scrollTo({top:0,behavior:'smooth'}));
+  $$('.accordion button').forEach(btn=>btn.addEventListener('click',()=>{const was=btn.getAttribute('aria-expanded')==='true';$$('.accordion button').forEach(b=>b.setAttribute('aria-expanded','false'));btn.setAttribute('aria-expanded',String(!was))}));
+  const form=$('#contact-form');
+  const error=(el,msg)=>{const field=el.closest('.field');field?.classList.toggle('invalid',!!msg);const small=field?.querySelector('small');if(small)small.textContent=msg};
+  form?.addEventListener('submit',e=>{e.preventDefault();let ok=true;const name=$('#name'),phone=$('#phone'),subject=$('#subject'),message=$('#message'),consent=$('#consent'),status=$('.form-status',form);[[name,name.value.trim().length<2?'Veuillez saisir votre nom.':''],[phone,phone.value&&!/^[0-9+ ()-]{7,20}$/.test(phone.value)?'Numéro de téléphone invalide.':''],[subject,!subject.value?'Choisissez un type de besoin.':''],[message,message.value.trim().length<20?'Votre message doit contenir au moins 20 caractères.':''],[consent,!consent.checked?'Votre accord est requis.':'']].forEach(([el,msg])=>{error(el,msg);if(msg)ok=false});if(!ok){status.textContent='Veuillez corriger les champs indiqués.';form.querySelector('.invalid input,.invalid select,.invalid textarea')?.focus();return}const prepared=`Demande INNOVA BTP\nNom : ${name.value.trim()}\nTéléphone : ${phone.value.trim()||'Non renseigné'}\nBesoin : ${subject.value}\n\n${message.value.trim()}`;status.textContent=`Votre message est prêt. Aucun envoi automatique n’a eu lieu. Copiez ce texte dans votre canal de contact :\n\n${prepared}`;});
+  const year=$('#year');if(year)year.textContent=new Date().getFullYear();
+})();
